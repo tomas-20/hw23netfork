@@ -1,5 +1,16 @@
 #include "pipe_networking.h"
 
+struct addrinfo *get_addrinfo(char *node, char *service) {
+  struct addrinfo hints = {0};
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  if (!node) {
+    hints.ai_flags = AI_PASSIVE;
+  }
+  struct addrinfo *results;
+  getaddrinfo(node, service, &hints, &results);
+  return results;
+}
 
 /*=========================
   server_setup
@@ -13,18 +24,8 @@
   returns the file descriptor for the upstream pipe.
   =========================*/
 
-struct addrinfo *server_addrinfo(char *service) {
-  struct addrinfo hints = {0};
-  hints.ai_family = AF_INET;
-  hints.ai_socktype = SOCK_STREAM;
-  hints.ai_flags = AI_PASSIVE;
-  struct addrinfo *results;
-  getaddrinfo(NULL, service, &hints, &results);
-  return results;
-}
-
 int server_setup() {
-  struct addrinfo *results = server_addrinfo("2187");
+  struct addrinfo *results = get_addrinfo(NULL, "2187");
   printf("Server: got info for socket\n");
   int from_client = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
   printf("Server: created socket %d\n", from_client);
@@ -63,17 +64,8 @@ int server_connect(int from_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 
-struct addrinfo *client_addrinfo(char *node, char *service) {
-  struct addrinfo hints = {0};
-  hints.ai_family = AF_INET;
-  hints.ai_socktype = SOCK_STREAM;
-  struct addrinfo *results;
-  getaddrinfo(node, service, &hints, &results);
-  return results;
-}
-
 int client_connect() {
-  struct addrinfo *results = client_addrinfo("127.0.0.1", "2187");
+  struct addrinfo *results = get_addrinfo("127.0.0.1", "2187");
   printf("Client: just got info for socket\n");
   int to_server = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
   printf("Client: created socket %d\n", to_server);
