@@ -75,10 +75,10 @@ struct addrinfo *client_addrinfo(char *node, char *service) {
 int client_connect() {
   struct addrinfo *results = client_addrinfo("127.0.0.1", "2187");
   printf("Client: just got info for socket\n");
-  int from_server = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
-  printf("Client: created socket %d\n", from_server);
-  connect(from_server, results->ai_addr, results->ai_addrlen);
-  printf("Client: just connected socket %d\n", from_server);
+  int to_server = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
+  printf("Client: created socket %d\n", to_server);
+  connect(to_server, results->ai_addr, results->ai_addrlen);
+  printf("Client: just connected socket %d\n", to_server);
   freeaddrinfo(results);
-  return from_server;
+  return to_server;
 }
